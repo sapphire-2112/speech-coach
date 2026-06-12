@@ -1,21 +1,24 @@
 from faster_whisper import WhisperModel
 
-WhisperModel("small", compute_type="int8")
+model = WhisperModel(
+    "small",
+    compute_type="int8"
+)
+
 def transcribe(audio_path):
 
     segments, info = model.transcribe(
-    audio_path,
-    language="hi",
-    task="transcribe"
-)
+        audio_path,
+        language="hi",
+        task="transcribe",
+        beam_size=5
+    )
 
     print("Language:", info.language)
-    print("Language Probability:", info.language_probability)
 
-    texts = []
+    text = " ".join(
+        seg.text
+        for seg in segments
+    )
 
-    for seg in segments:
-        print("SEGMENT:", seg.text)
-        texts.append(seg.text)
-
-    return " ".join(texts)
+    return text

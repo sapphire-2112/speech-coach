@@ -11,14 +11,25 @@ from app.phonemes.word_dict import WORD_DICT
 from app.core.matcher import find_best_match
 from app.services.whisper_service import transcribe
 from app.services.translator import translate_to_english
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 import shutil
 
 app = FastAPI()
+app.mount(
+    "/static",
+    StaticFiles(directory="static"),
+    name="static"
+)
+@app.get("/", response_class=HTMLResponse)
+def home():
 
-@app.get("/")
-def root():
-    return {"message": "Pronunciation Engine Running"}
+    with open(
+        "templates/index.html",
+        "r"
+    ) as f:
+        return f.read()
 
 
 @app.post("/translate")
