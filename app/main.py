@@ -9,6 +9,8 @@ from app.core.feedback import generate_feedback
 from app.services.recognizer import recognize_audio
 from app.phonemes.word_dict import WORD_DICT
 from app.core.matcher import find_best_match
+from app.services.whisper_service import transcribe
+from app.services.translator import translate_to_english
 
 import shutil
 
@@ -18,8 +20,28 @@ app = FastAPI()
 def root():
     return {"message": "Pronunciation Engine Running"}
 
+
+@app.post("/translate")
+async def translate_audio(audio: UploadFile = File(...)):
+
+    file_path = "input.wav"
+
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(audio.file, buffer)
+
+    transcript = transcribe(file_path)
+
+    translation = translate_to_english(transcript)
+
+    return {
+        "transcript": transcript,
+        "translation": translation
+    }
+
+
 @app.post("/check/{word}")
 async def check(word: str, audio: UploadFile = File(...)):
+
     
     print("CHECK ENDPOINT HIT")
 
