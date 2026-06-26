@@ -50,8 +50,25 @@ stopBtn.onclick = () => {
                 body: formData
             });
 
-        const result =
-            await response.json();
+            const result = await response.json();
+            const player = new Audio("/audio");
+                player.play();
+
+      document.getElementById(
+            "speakBtn"
+        ).disabled = false;
+
+        window.lastTranslation =
+            result.translation;
+
+        document.getElementById("speakBtn").onclick = () => {
+
+            const audio = new Audio(
+                "/audio?t=" + Date.now()
+            );
+            audio.play();
+        };
+                        
 
         document.getElementById(
             "transcript"

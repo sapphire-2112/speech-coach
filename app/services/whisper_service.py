@@ -9,7 +9,6 @@ def transcribe(audio_path):
 
     segments, info = model.transcribe(
         audio_path,
-        language="hi",
         task="transcribe",
         beam_size=5
     )

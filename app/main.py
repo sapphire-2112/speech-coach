@@ -10,9 +10,12 @@ from app.services.recognizer import recognize_audio
 from app.phonemes.word_dict import WORD_DICT
 from app.core.matcher import find_best_match
 from app.services.whisper_service import transcribe
-from app.services.translator import translate_to_english
+from app.services.gemini_service import translate_to_english
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from app.services.tts_service import generate_audio
+import time
 
 import shutil
 
@@ -44,10 +47,33 @@ async def translate_audio(audio: UploadFile = File(...)):
 
     translation = translate_to_english(transcript)
 
+    print(type(translation))
+    print(translation)  
+
+    await generate_audio(translation)
+
+    start=time.time()
+    transcript = transcribe(file_path)
+    print("Whisper:", time.time() - start)
+    start = time.time()
+    translation = translate_to_english(transcript)
+    print("Translation:", time.time() - start)
+    start = time.time()
+    await generate_audio(translation)
+    print("TTS:", time.time() - start)
+
     return {
         "transcript": transcript,
         "translation": translation
     }
+
+@app.get("/audio")
+async def audio():
+
+    return FileResponse(
+        "output.mp3",
+        media_type="audio/mpeg"
+    )
 
 
 @app.post("/check/{word}")
@@ -91,6 +117,7 @@ async def check(word: str, audio: UploadFile = File(...)):
 
     # Step 6: feedback
     fb = generate_feedback(results)
+
 
     return {
         "expected_word": target,
