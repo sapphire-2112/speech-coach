@@ -30,7 +30,7 @@ Rules:
 def translate_to_english(text: str):
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-2.5-flash-lite",
         contents=f"{PROMPT}\n\nTranscript:\n{text}"
     )
 
