@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/streak_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -11,6 +12,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _floatingController;
   int _selectedNavIndex = 0;
+  int _streakCount = 0;
+  bool _isLoadingStreak = true;
+  String? _lastVisitDate;
 
   @override
   void initState() {
@@ -19,12 +23,34 @@ class _DashboardScreenState extends State<DashboardScreen>
       duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat();
+    _loadStreak();
   }
 
   @override
   void dispose() {
     _floatingController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadStreak() async {
+    final streakCount = await StreakService.updateStreakForToday();
+    final lastVisit = await StreakService.getLastVisitDate();
+    if (!mounted) return;
+    setState(() {
+      _streakCount = streakCount;
+      _lastVisitDate = lastVisit;
+      _isLoadingStreak = false;
+    });
+  }
+
+  Future<void> _resetStreak() async {
+    await StreakService.resetStreak();
+    if (!mounted) return;
+    setState(() {
+      _streakCount = 0;
+      _lastVisitDate = null;
+      _isLoadingStreak = false;
+    });
   }
 
   @override
@@ -157,7 +183,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '5 day streak',
+                                _isLoadingStreak
+                                    ? 'Loading streak...'
+                                    : _streakCount == 0
+                                        ? 'No active streak'
+                                        : '$_streakCount day streak',
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelLarge
@@ -166,6 +196,53 @@ class _DashboardScreenState extends State<DashboardScreen>
                                       fontSize: 14,
                                       fontWeight: FontWeight.w700,
                                     ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _isLoadingStreak
+                                    ? 'Checking today’s visit'
+                                    : _streakCount == 0
+                                        ? 'Start your streak today'
+                                        : _lastVisitDate == null
+                                            ? 'Start your streak today'
+                                            : 'Last visit: $_lastVisitDate',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                      color: const Color(0xFF006d36),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                              const SizedBox(height: 8),
+                              GestureDetector(
+                                onTap: _resetStreak,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFf3f9f4),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: const Color(0xFF4ade80),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Reset streak',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
+                                          color: const Color(0xFF006d36),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                  ),
+                                ),
                               ),
                               Text(
                                 'Mastering the flow!',
