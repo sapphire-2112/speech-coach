@@ -1,3 +1,5 @@
+console.log("APP.JS LOADED");
+console.log(document.getElementById("loadGrammar"));
 let mediaRecorder;
 let audioChunks = [];
 
@@ -35,6 +37,36 @@ stopBtn.onclick = () => {
             new Blob(audioChunks, {
                 type: "audio/wav"
             });
+
+            const formData = new FormData();
+
+                formData.append(
+                    "audio",
+                    audioBlob,
+                    "grammar.wav"
+                );
+
+                formData.append(
+                    "sentence_id",
+                    grammarId
+                );
+
+                formData.append(
+                    "level",
+                    grammarLevel
+                );
+
+                const response =
+                    await fetch(
+                        "/grammar/check",
+                        {
+                            method:"POST",
+                            body:formData
+                        }
+                    );
+
+const result =
+    await response.json();
 
         const formData = new FormData();
 
@@ -80,7 +112,5 @@ stopBtn.onclick = () => {
         ).innerText =
             result.translation;
     };
-
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
-};
+ 
+}

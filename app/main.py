@@ -1,5 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
-
+from fastapi import FastAPI, UploadFile, File, Form
 from app.services.cmu_service import get_phonemes
 from app.phonemes.cmu_map import CMU_TO_INTERNAL
 from app.core.normalizer import normalize
@@ -16,15 +15,29 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from app.services.tts_service import generate_audio
 import time
-
+from app.services.grammar_service import get_random_sentence
+from app.services.grammar_checker import check_grammar
+from app.services.grammar_service import get_sentence_by_id
 import shutil
-
+from fastapi import Request
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+templates = Jinja2Templates(directory="templates")
 app = FastAPI()
 app.mount(
     "/static",
     StaticFiles(directory="static"),
     name="static"
 )
+
+@app.get("/grammar", response_class=HTMLResponse)
+async def grammar_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="grammar.html",
+        context={}
+    )
+
 @app.get("/", response_class=HTMLResponse)
 def home():
 
@@ -33,6 +46,29 @@ def home():
         "r"
     ) as f:
         return f.read()
+    
+
+@app.post("/grammar/check")
+async def grammar_check(
+    level: str = Form(...),
+    sentence_id: int = Form(...),
+    audio: UploadFile = File(...)
+):
+
+    file_path = "grammar.wav"
+
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(audio.file, buffer)
+
+    spoken = transcribe(file_path)
+
+    sentence = get_sentence_by_id(level, sentence_id)
+
+    correct = sentence["correct"]
+
+    result = check_grammar(correct, spoken)
+
+    return result
 
 
 @app.post("/translate")
@@ -65,6 +101,17 @@ async def translate_audio(audio: UploadFile = File(...)):
     return {
         "transcript": transcript,
         "translation": translation
+    }
+
+@app.get("/grammar/{level}")
+async def grammar(level: str):
+
+    sentence = get_random_sentence(level)
+
+    return {
+        "id": sentence["id"],
+        "scenario": sentence["scenario"],
+        "wrong": sentence["wrong"]
     }
 
 @app.get("/audio")

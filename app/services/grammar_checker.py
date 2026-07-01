@@ -10,25 +10,43 @@ client = genai.Client(
     api_key=os.getenv("API")
 )
 PROMPT = """
-You are an English Grammar Evaluator.
+You are an AI English Grammar Coach.
 
 Expected sentence:
 {correct}
 
-Student sentence:
+Student spoke:
 {spoken}
 
-Compare them.
+Compare both sentences carefully.
+
+Evaluate:
+
+1. Grammar correctness
+2. Missing words
+3. Wrong words
+4. Extra words
+5. Word order
+6. Overall fluency
+
+Scoring:
+
+95-100 = Excellent
+85-94 = Very Good
+70-84 = Good
+50-69 = Average
+0-49 = Needs Improvement
 
 Return ONLY valid JSON.
 
 {{
     "score": 0,
-    "feedback": [
-        "...",
-        "...",
-        "..."
-    ]
+    "grade": "",
+    "grammar_correct": true,
+    "spoken_sentence": "",
+    "expected_sentence": "",
+    "feedback": [],
+    "mistakes": []
 }}
 """
 
@@ -36,7 +54,7 @@ def check_grammar(correct, spoken):
 
     prompt = PROMPT.format(
         correct=correct,
-        spoken=spoken
+        spoken=spoken,
     )
 
     response = client.models.generate_content(
@@ -49,7 +67,13 @@ def check_grammar(correct, spoken):
     print("========== TEXT ==========")
     print(response.text)
 
-    return response.text
+    text = response.text
+
+    text = text.replace("```json", "")
+    text = text.replace("```", "")
+    text = text.strip()
+
+    return json.loads(text)
 
 if __name__ == "__main__":
 
