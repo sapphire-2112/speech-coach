@@ -1,6 +1,10 @@
 import os
 import platform
 
+# Move HuggingFace cache to E drive on Windows (local dev only, C drive has no space)
+if platform.system() == "Windows":
+    os.environ["HF_HOME"] = r"E:\huggingface_cache"
+
 # Help phonemizer find eSpeak on Windows before importing transformers
 if platform.system() == "Windows":
     os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = r"C:\Program Files\eSpeak NG\libespeak-ng.dll"

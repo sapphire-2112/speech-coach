@@ -5,6 +5,7 @@ import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
 import DashboardScreen from './screens/DashboardScreen';
+import PracticeScreen from './screens/PracticeScreen';
 
 function App() {
   const onboardingComplete = window.localStorage.getItem('onboardingComplete') === 'true';
@@ -18,6 +19,7 @@ function App() {
         <Route path="/signup" element={<SignupScreen />} />
         <Route path="/onboarding" element={<OnboardingScreen />} />
         <Route path="/home" element={<DashboardScreen />} />
+        <Route path="/practice" element={<PracticeScreen />} />
         <Route path="*" element={<Navigate to={onboardingComplete ? '/login' : '/onboarding'} replace />} />
       </Routes>
     </BrowserRouter>

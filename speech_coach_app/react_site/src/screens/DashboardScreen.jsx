@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const mascotUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLtA0lUPXIcYVo0VCrGTsBLkeWXPlCvhsajO-OvXC23TguI_KtkO6goD_WPsbH_6YsmfH6J6YSHRdWlvF_GgCW8nPdQe13vGC8Y3p5oZenrwLIn_Jf6mMFOSkIQU5PpAY5-LC6TtxruWaydkuqAaOree5RgJlmiyemK2XGQK4UrbX9NfJWnv6JZ7hHE-aeFpdqD1YWKLqb2tI4M7avtrEOguomSKLIArMTfKixNUzawnH-YwuHfiu7LDyUk';
 const fireUrl = 'https://lh3.googleusercontent.com/aida/AP1WRLvv4VUF0ght5bJn2Uh6ocHGhAtK15D98NS6dhns6sgmFUf0UeB9_TPKmhzxtZfzOikMe6E1Qbp_4vWAB3iji-mmfw18qQDB45XSfgqcPxTe5HhsoX3tL0mxuUIz3RxV63UYpb8ZlXmE8ls1Rd2TG0itirUGPW-HUFfQlYDKnlWwU0b8UilizRWGhAzSyrqjqOeS_H4ieQGmA-HZ0eMQrHr1om-KpTy5Huuu0HAKegsZsJIxpJHNJx6nu_E';
 
 export default function DashboardScreen() {
+  const navigate = useNavigate();
   const [selectedNavIndex, setSelectedNavIndex] = useState(0);
   const [streakCount, setStreakCount] = useState(0);
   const [loadingStreak, setLoadingStreak] = useState(true);
@@ -55,7 +57,7 @@ export default function DashboardScreen() {
           <div className="action-icon">🎤</div>
           <h3>Next Adventure</h3>
           <p>Practice daily greetings and conversational fillers to sound like a pro.</p>
-          <button type="button" className="primary-btn">Start Speaking Practice 🎤</button>
+          <button type="button" className="primary-btn" onClick={() => navigate('/practice')}>Start Speaking Practice 🎤</button>
         </section>
 
         <section className="progress-card">
