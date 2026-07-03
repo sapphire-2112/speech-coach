@@ -30,13 +30,20 @@ def home():
 
     with open(
         "templates/index.html",
-        "r"
+        "r",
+        encoding="utf-8"
     ) as f:
         return f.read()
 
 
+from fastapi import Form
+
 @app.post("/translate")
-async def translate_audio(audio: UploadFile = File(...)):
+async def translate_audio(
+    audio: UploadFile = File(...),
+    accent: str = Form(...),
+    slow: bool = Form(False)
+):
 
     file_path = "input.wav"
 
@@ -45,27 +52,41 @@ async def translate_audio(audio: UploadFile = File(...)):
 
     transcript = transcribe(file_path)
 
-    translation = translate_to_english(transcript)
+    translation = translate_to_english(transcript,accent)
 
     print(type(translation))
     print(translation)  
 
-    await generate_audio(translation)
+    await generate_audio(translation,accent,slow)
 
     start=time.time()
     transcript = transcribe(file_path)
     print("Whisper:", time.time() - start)
     start = time.time()
-    translation = translate_to_english(transcript)
+    translation = translate_to_english(transcript,accent)
     print("Translation:", time.time() - start)
     start = time.time()
-    await generate_audio(translation)
+    await generate_audio(translation,accent,slow)
     print("TTS:", time.time() - start)
 
     return {
         "transcript": transcript,
         "translation": translation
     }
+
+@app.post("/tts")
+async def tts(
+    text: str = Form(...),
+    accent: str = Form(...),
+    slow: bool = Form(False)
+):
+    await generate_audio(
+        text,
+        accent,
+        slow
+    )
+
+    return {"success": True}
 
 @app.get("/audio")
 async def audio():

@@ -1,29 +1,54 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Speech Coach</title>
 </head>
+
 <body>
 
     <h1>Speech Coach</h1>
 
-    <button id="startBtn">Start Recording</button>
-    <button id="stopBtn" disabled>Stop Recording</button>
+    <button id="startBtn">🎤 Start Recording</button>
+    <button id="stopBtn" disabled>⏹ Stop Recording</button>
 
     <hr>
 
     <h3>Transcript</h3>
+
     <p id="transcript"></p>
 
+    <button id="translateBtn" disabled>
+        🌐 Translate
+    </button>
+
+    <hr>
+
+    <label>Accent</label>
+
+    <select id="accent">
+
+        <option value="Indian English">🇮🇳 Indian</option>
+        <option value="American English">🇺🇸 American</option>
+        <option value="British English">🇬🇧 British</option>
+        <option value="Australian English">🇦🇺 Australian</option>
+
+    </select>
+
     <h3>Translation</h3>
+
     <p id="translation"></p>
-    <button id="speakBtn">
-    🔊 Pronounce
-</button>
-<button id="speakBtn" disabled></button>
+
+    <button id="speakBtn" disabled>
+        🔊 Pronounce
+    </button>
+
+    <button id="slowSpeakBtn" disabled>
+        🐢 Speak Slowly
+    </button>
 
     <script src="/static/app.js"></script>
 
-
 </body>
+
 </html>
