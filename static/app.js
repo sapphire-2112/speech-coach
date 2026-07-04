@@ -1,3 +1,5 @@
+console.log("APP.JS LOADED");
+console.log(document.getElementById("loadGrammar"));
 let mediaRecorder;
 let audioChunks = [];
 let recordedAudio = null;
@@ -43,6 +45,7 @@ stopBtn.onclick = () => {
         recordedAudio = new Blob(audioChunks, {
             type: "audio/wav"
         });
+
 
         translateBtn.disabled = false;
     };
