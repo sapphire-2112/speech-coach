@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-nltk
-transformers
-torch
-python-multipart
-librosa
-soundfile
-phonemizer

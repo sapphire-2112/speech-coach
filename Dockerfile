@@ -1,39 +1,24 @@
 FROM python:3.9-slim
 
-# Install system dependencies required for audio processing
 RUN apt-get update && apt-get install -y \
-    libsndfile1 \
     ffmpeg \
+    libsndfile1 \
     espeak-ng \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /code
+WORKDIR /app
 
-# Copy requirements and install them
-COPY requirenments.txt .
-RUN pip install --no-cache-dir -r requirenments.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Pre-download the Wav2Vec2 model so it doesn't download on every request
+# Optional: pre-download Wav2Vec model
 RUN python -c "from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC; \
-    MODEL_ID = 'facebook/wav2vec2-xlsr-53-espeak-cv-ft'; \
-    Wav2Vec2Processor.from_pretrained(MODEL_ID); \
-    Wav2Vec2ForCTC.from_pretrained(MODEL_ID)"
+MODEL='facebook/wav2vec2-xlsr-53-espeak-cv-ft'; \
+Wav2Vec2Processor.from_pretrained(MODEL); \
+Wav2Vec2ForCTC.from_pretrained(MODEL)"
 
-# Copy the rest of the application code
 COPY . .
 
-# Set up permissions for Hugging Face Spaces
-RUN useradd -m -u 1000 user
-USER user
-ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH
-
-WORKDIR $HOME/app
-
-COPY --chown=user . $HOME/app
-
-# Expose port 7860 as required by Hugging Face Spaces
 EXPOSE 7860
 
-# Command to run the FastAPI app via Uvicorn
-CMD sh -c "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"
+CMD ["uvicorn","app.main:app","--host","0.0.0.0","--port","7860"]
