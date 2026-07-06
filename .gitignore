@@ -4,3 +4,7 @@ __pycache__/
 *.wav
 *.mp3
 .env
+node_modules/
+dist/
+speech_coach_app/react_site/node_modules/
+speech_coach_app/react_site/dist/
