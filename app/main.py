@@ -1,10 +1,11 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Query
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.services.cmu_service import get_phonemes
 from app.phonemes.cmu_map import CMU_TO_INTERNAL
 from app.core.normalizer import normalize
 from app.core.comparator import compare
-from app.core.scorer import score
+from app.core.scorer import score, score_breakdown
 from app.core.feedback import generate_feedback
 from app.services.recognizer import recognize_audio
 from app.phonemes.word_dict import WORD_DICT
@@ -14,12 +15,23 @@ import shutil
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/")
 def root():
     return {"message": "Pronunciation Engine Running"}
 
 @app.post("/check/{word}")
-async def check(word: str, audio: UploadFile = File(...)):
+async def check(
+    word: str,
+    audio: UploadFile = File(...),
+    accent: str = Query(default="indian", pattern="^(indian|auto|neutral)$")
+):
     
     print("CHECK ENDPOINT HIT")
 
@@ -50,19 +62,27 @@ async def check(word: str, audio: UploadFile = File(...)):
         expected = normalize(expected_cmu, CMU_TO_INTERNAL)
         print("FALLBACK TO CMU:", expected)
 
-    # Step 4: compare exact match
-    results = compare(expected, spoken)
+    # Step 4: compare sounds with Indian-speaker-aware tolerance
+    results = compare(expected, spoken, accent=accent)
 
-    # Step 5: score
+    # Step 5: score on a 0-100 scale with vowel/consonant weighting
     sc = score(results)
+    breakdown = score_breakdown(results)
 
-    # Step 6: feedback
-    fb = generate_feedback(results)
+    # Step 6: feedback with mistakes and improvement drills
+    fb = generate_feedback(results, sc)
 
     return {
         "expected_word": target,
         "detected_word": target,
-        "spoken": spoken,
+        "expected_phonemes": expected,
+        "spoken_phonemes": spoken,
+        "comparison": results,
         "score": sc,
-        "feedback": fb
+        "score_breakdown": breakdown,
+        "feedback": fb["feedback"],
+        "summary": fb["summary"],
+        "mistakes": fb["mistakes"],
+        "improvements": fb["improvements"],
+        "accent_used": accent,
     }
