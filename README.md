@@ -1,3 +1,12 @@
+---
+title: Speech Coach Sapphire
+emoji: 🏆
+colorFrom: purple
+colorTo: purple
+sdk: docker
+pinned: false
+---
+
 #  Pronunciation Coach
 
 A backend system that analyzes user speech and provides pronunciation feedback.
